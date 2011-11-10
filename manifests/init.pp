@@ -5,7 +5,7 @@ class mysql_proxy($rules, $admin_port=4045, $admin_password='not_used', $proxy_p
 
     case $operatingsystem {
         'Ubuntu': { case $lsbdistcodename {
-            'lucid':  { include mysql_proxy::lucid }
+            'lucid':  { include mysql_proxy::distro::lucid }
             default: { fail("Unsupported distribution $lsbdistcodename") }
             }
         }
