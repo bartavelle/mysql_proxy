@@ -28,7 +28,7 @@ good_queries = Set {
 }
 
 multiple_queries = Set {
-<% scope.lookupvar('mysql_proxy::rules').sort.each do |k, v| -%>
+<% scope.lookupvar('mysql_proxy::rules').select{ |k, v| v == "multi" }.sort.each do |k, v| -%>
     "<%=k%>",
 <% end -%>
 }
