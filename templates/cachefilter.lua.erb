@@ -3,17 +3,9 @@ local parser       = require("proxy.parser")
 local commands     = require("proxy.commands")
 local auto_config  = require("proxy.auto-config")
 
-function log (level, message)
-	local fh = io.open("/var/log/mysql-proxy/userlog.log", "a+")
-	local text = "NULL"
-	if message == nil then
-		text = "NULL"
-	else
-		text = message
-	end
-	fh:write( string.format("%s %6d [%s] [%s] %s\n", os.date('%Y-%m-%d %H:%M:%S'), proxy.connection.server.thread_id, proxy.connection.client.default_db, level, text) )
-	fh:close()
-end
+require "lsyslog"
+
+lsyslog.open("mysqlproxy", lsyslog.FACILITY_DAEMON)
 
 function Set (list)
 	local set = {}
@@ -48,11 +40,11 @@ function read_query(packet)
 			local norm_query = string.gsub(tokenizer.normalize(tokens), ' NULL ', ' ? ')
 			if( good_queries[norm_query] ) then
 				proxy.queries:append(1, packet, { resultset_is_needed = true } )
-				log("OK", qdesc)
+				--log("OK", qdesc)
 				return proxy.PROXY_SEND_QUERY
-			else
-				print("BAD query : '" .. qdesc .. "' (format = '" .. norm_query .. "')")
-				log("BAD", qdesc .. "[format='" .. norm_query .. "']")
+            else
+                lsyslog.log(lsyslog.LOG_ALERT, "BAD query, format: '" .. norm_query .. "'")
+				--log("BAD", qdesc .. "[format='" .. norm_query .. "']")
 				proxy.response = { type = proxy.MYSQLD_PACKET_ERR,
 					errmsg = "Query '" .. cmd.query .. "' rejected",
 					errno = 1205,
@@ -97,7 +89,8 @@ function read_query(packet)
 		else
 			desc = cmd.query
 		end
-		log("BAD:", desc)
+        --log("BAD:", desc)
+        lsyslog.log(lsyslog.LOG_ALERT, "BAD: " .. desc)
 		proxy.response = { type = proxy.MYSQLD_PACKET_ERR, 
 			errmsg = "Query '" .. desc .. "' rejected (bad type)",
 			errno = 1205,
@@ -105,14 +98,13 @@ function read_query(packet)
 		return proxy.PROXY_SEND_RESULT
 	end
 	
-	log("OK", qdesc)
+	--log("OK", qdesc)
 	proxy.queries:append(1, packet, { resultset_is_needed = true } )
 	return proxy.PROXY_SEND_QUERY
 end
 
 function security_breach(qdesc, msg)
-	print("ALERT '" .. qdesc .. "' (" .. msg .. ")")
-	log("ALERT" .. msg, qdesc);
+    lsyslog.log(lsyslog.LOG_ALERT, "SECALERT: " .. msg .. qdesc)
 	proxy.response = { type = proxy.MYSQLD_PACKET_ERR, 
 		errmsg = "Query " .. qdesc .. " produced a security warning",
 		errno = 1206,

@@ -8,5 +8,4 @@ proxy-backend-addresses=<%=scope.lookupvar('mysql_proxy::mysql_ip')%>:<%=scope.l
 max-open-files=1024
 user=mysqlproxy
 proxy-lua-script=/usr/lib/mysql-proxy/lua/cachefilter.lua
-log-file=/var/log/mysql-proxy/daemon.log
 keepalive=true
