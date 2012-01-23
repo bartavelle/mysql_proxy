@@ -1,7 +1,7 @@
 [mysql-proxy]
 admin-address = 0.0.0.0:<%=scope.lookupvar('mysql_proxy::admin_port')%>
 proxy-skip-profiling = true
-admin-passwor=<%=scope.lookupvar('mysql_proxy::admin_password')%>
+admin-password=<%=scope.lookupvar('mysql_proxy::admin_password')%>
 admin-username=administrator
 proxy-address=0.0.0.0:<%=scope.lookupvar('mysql_proxy::proxy_port')%>
 proxy-backend-addresses=<%=scope.lookupvar('mysql_proxy::mysql_ip')%>:<%=scope.lookupvar('mysql_proxy::mysql_port')%>
