@@ -23,7 +23,7 @@ The rules must be formated like the output of the tokenizer.normalize function. 
   }
 
 ==Usage
-Once installed, the proxy will listen to incoming connections and forward them to the MySQL server. The daemon's log is in +/var/log/mysql_proxy/daemon.log+, and request log are in +/var/log/mysql_proxy/userlog.log+. The requests log is very verbose and must be rotated.
+Once installed, the proxy will listen to incoming connections and forward them to the MySQL server. Rejected requests will be logged in their normalized form on syslog, with facility daemon and level alert.
 
 */
 class mysql_proxy($rules, $admin_port=4045, $admin_password='not_used', $proxy_port=4050, $mysql_ip='127.0.0.1', $mysql_port=3306)
